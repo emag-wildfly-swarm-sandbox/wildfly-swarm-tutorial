@@ -29,10 +29,12 @@
     <finalName>order</finalName>
     <plugins>
       <plugin>
-        <groupId>org.wildfly.plugins</groupId>
-        <artifactId>wildfly-maven-plugin</artifactId>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
         <configuration>
-          <skip>false</skip>
+          <properties>
+            <swarm.context.path>${project.build.finalName}</swarm.context.path>
+          </properties>
         </configuration>
       </plugin>
 

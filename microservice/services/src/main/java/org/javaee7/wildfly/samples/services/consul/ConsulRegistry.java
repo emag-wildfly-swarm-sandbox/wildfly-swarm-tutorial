@@ -7,6 +7,7 @@ import org.javaee7.wildfly.samples.services.ConsulServices;
 import org.javaee7.wildfly.samples.services.registration.ServiceRegistry;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
@@ -48,7 +49,15 @@ public class ConsulRegistry implements ServiceRegistry {
   }
 
   @Override
-  public void unregisterService(String name, String uri) {}
+  public void unregisterService(String name, String uri) {
+    try {
+      ConsulClient client = getConsulClient();
+      URL url = new URL(uri);
+      client.agentServiceDeregister(serviceId(name, url.getHost(), url.getPort()));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @Override
   public String discoverServiceURI(String name) {

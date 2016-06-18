@@ -14,6 +14,8 @@ import javax.inject.Inject;
 @Singleton
 public class UserService {
 
+  private static final String serviceName = "user";
+
   @Inject
   @ConsulServices
   ServiceRegistry services;
@@ -21,16 +23,17 @@ public class UserService {
   @Inject
   WildFlyUtil util;
 
-  private static final String serviceName = "user";
+  private String endpoint;
 
   @PostConstruct
   public void registerService() {
-    services.registerService(serviceName, getEndpoint());
+    endpoint = getEndpoint();
+    services.registerService(serviceName, endpoint);
   }
 
   @PreDestroy
   public void unregisterService() {
-    services.unregisterService(serviceName, getEndpoint());
+    services.unregisterService(serviceName, endpoint);
   }
 
   private String getEndpoint() {
