@@ -5,16 +5,11 @@ import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
 import org.wildfly.swarm.jaxrs.JAXRSArchive;
 import org.wildfly.swarm.topology.TopologyArchive;
-import org.wildfly.swarm.topology.consul.ConsulTopologyFraction;
 
 public class Main {
 
   public static void main(String[] args) throws Exception {
     Swarm swarm = new Swarm(args);
-
-    swarm.fraction(new ConsulTopologyFraction(
-      System.getProperty("swarm.consul.url", "http://localhost:8500/")
-    ));
 
     swarm.start();
 
@@ -26,7 +21,9 @@ public class Main {
       new ClassLoaderAsset("META-INF/load.sql", Main.class.getClassLoader()), "classes/META-INF/load.sql");
     archive.addAllDependencies();
 
-    archive.as(TopologyArchive.class).advertise("catalog");
+    archive.as(TopologyArchive.class).advertise(
+      swarm.stageConfig().resolve("service.catalog.service-name").getValue()
+    );
 
     swarm.deploy(archive);
   }

@@ -5,16 +5,11 @@ import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.wildfly.swarm.Swarm;
 import org.wildfly.swarm.jaxrs.JAXRSArchive;
 import org.wildfly.swarm.topology.TopologyArchive;
-import org.wildfly.swarm.topology.consul.ConsulTopologyFraction;
 
 public class Main {
 
   public static void main(String[] args) throws Exception {
     Swarm swarm = new Swarm(args);
-
-    swarm.fraction(new ConsulTopologyFraction(
-      System.getProperty("swarm.consul.url", "http://localhost:8500/")
-    ));
 
     swarm.start();
 
@@ -24,7 +19,9 @@ public class Main {
       new ClassLoaderAsset("META-INF/persistence.xml", Main.class.getClassLoader()), "classes/META-INF/persistence.xml");
     archive.addAllDependencies();
 
-    archive.as(TopologyArchive.class).advertise("order");
+    archive.as(TopologyArchive.class).advertise(
+      swarm.stageConfig().resolve("service.order.service-name").getValue()
+    );
 
     swarm.deploy(archive);
   }
