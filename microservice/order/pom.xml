@@ -11,17 +11,31 @@
   </parent>
 
   <artifactId>order</artifactId>
-  <packaging>war</packaging>
 
   <dependencies>
     <dependency>
-      <groupId>org.javaee7.wildfly.samples</groupId>
-      <artifactId>services</artifactId>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs-cdi</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.javaee7.wildfly.samples</groupId>
-      <artifactId>utils</artifactId>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs-jaxb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs-jsonp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>ejb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>topology-consul</artifactId>
     </dependency>
   </dependencies>
 
@@ -32,6 +46,7 @@
         <groupId>org.wildfly.swarm</groupId>
         <artifactId>wildfly-swarm-plugin</artifactId>
         <configuration>
+          <mainClass>org.javaee7.wildfly.samples.everest.order.Main</mainClass>
           <properties>
             <swarm.context.path>${project.build.finalName}</swarm.context.path>
           </properties>
