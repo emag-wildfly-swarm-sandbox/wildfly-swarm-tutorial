@@ -37,7 +37,7 @@ public class Order implements Serializable {
     return orderItems;
   }
 
-  public Entity<String> asJson() {
+  public String asJsonString() {
     JsonArray orderItems = null;
     for (OrderItem orderItem : getOrderItems()) {
       orderItems = Json.createArrayBuilder()
@@ -56,7 +56,11 @@ public class Order implements Serializable {
       w.write(jsonObject);
     }
 
-    return Entity.json(writer.toString());
+    return writer.toString();
+  }
+
+  public Entity<String> asJson() {
+    return Entity.json(asJsonString());
   }
 
   public void setOrderItems(List<OrderItem> orderItems) {

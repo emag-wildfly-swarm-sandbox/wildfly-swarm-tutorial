@@ -1,22 +1,27 @@
 package org.javaee7.wildfly.samples.everest.checkout;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+import com.netflix.ribbon.ClientOptions;
+import com.netflix.ribbon.Ribbon;
+import com.netflix.ribbon.http.HttpRequestTemplate;
+import com.netflix.ribbon.http.HttpResourceGroup;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.javaee7.wildfly.samples.everest.cart.Cart;
 import org.javaee7.wildfly.samples.everest.cart.CartItem;
 import org.javaee7.wildfly.samples.services.discovery.ServiceDiscovery;
+import rx.Observable;
+import rx.observables.BlockingObservable;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonWriter;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.List;
 
 @Named
@@ -46,19 +51,40 @@ public class OrderBean implements Serializable {
     });
 
     try {
+      // the request context thread locals
       HystrixRequestContext context = HystrixRequestContext.initializeContext();
 
       try {
-        OrderCommand.Result result = new OrderCommand(services, order.asJson()).execute();
-        if (result.isSuccessful()) {
-          cart.clearCart();
-        }
-        status = result.getStatus();
+
+        HttpResourceGroup httpResourceGroup = Ribbon.createHttpResourceGroup(
+          "order", // the name of the service in the registry
+          ClientOptions.create().withMaxAutoRetriesNextServer(3)
+        );
+
+        HttpRequestTemplate<ByteBuf> template = httpResourceGroup.newTemplateBuilder("submitOrder")
+          .withMethod("POST")
+          .withUriTemplate("/order/resources/order")
+          .build();
+
+        BlockingObservable<ByteBuf> obs = template.requestBuilder()
+          .withHeader("Content-Type", MediaType.APPLICATION_JSON)
+          .withContent(Observable.just(Unpooled.wrappedBuffer(order.asJsonString().getBytes())))
+          .build()
+          .observe().toBlocking();
+
+        String response = obs.last().toString(Charset.forName("UTF-8"));
+        JsonObject jsonResponse = Json.createReader(new StringReader(response)).readObject();
+
+        status = "Order successful, order number: " + jsonResponse.get("orderId");
+
+        cart.clearCart();
+
       } finally {
         context.shutdown();
       }
 
     } catch (Exception e) {
+      e.printStackTrace();
       status = e.getLocalizedMessage();
     }
   }
