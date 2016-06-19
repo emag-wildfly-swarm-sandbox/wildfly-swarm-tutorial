@@ -11,14 +11,8 @@
   </parent>
 
   <artifactId>everest-web</artifactId>
-  <packaging>war</packaging>
 
   <dependencies>
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.javaee7.wildfly.samples</groupId>
       <artifactId>services</artifactId>
@@ -35,16 +29,48 @@
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jaxb-provider</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jsf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>cdi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>ejb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs-jaxb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs-jsonp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>topology-consul</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>hystrix</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
     <finalName>everest-web</finalName>
     <plugins>
       <plugin>
-        <groupId>org.wildfly.plugins</groupId>
-        <artifactId>wildfly-maven-plugin</artifactId>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
         <configuration>
-          <skip>false</skip>
+          <mainClass>org.javaee7.wildfly.samples.everest.Main</mainClass>
+          <properties>
+            <swarm.context.path>${project.build.finalName}</swarm.context.path>
+          </properties>
         </configuration>
       </plugin>
 
